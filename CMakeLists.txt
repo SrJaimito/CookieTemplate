@@ -44,6 +44,8 @@ include_directories(
 set(TOOLCHAIN_DIR ${HOME}/opt/toolchains/gcc-arm-none-eabi-10.3-2021.10/bin)
 
 set(CMAKE_C_COMPILER ${TOOLCHAIN_DIR}/arm-none-eabi-gcc)
+set(OBJCOPY ${TOOLCHAIN_DIR}/arm-none-eabi-objcopy)
+
 set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER})
 set(CMAKE_ASM_SOURCE_FILE_EXTENSIONS S)
 
@@ -64,7 +66,6 @@ set(CMAKE_EXE_LINKER_FLAGS " \
     -T${LD_FILE} \
     --specs=nosys.specs \
     -Wl,--gc-sections \
-    -Wl,--strip-all \
 ")
 
 add_executable(${PROJECT_NAME}.elf
@@ -72,4 +73,8 @@ add_executable(${PROJECT_NAME}.elf
     ${STARTUP_FILE}
     ${SYSTEM_FILE}
     ${EMLIB_SRC_FILES}
+)
+
+add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
+    COMMAND ${OBJCOPY} -O ihex ${PROJECT_NAME}.elf ${PROJECT_NAME}.hex
 )
