@@ -6,12 +6,13 @@
 
 #include "app_config.h"
 
-#include "em_device.h"
+#include "em_timer.h"
+#include "em_gpio.h"
 
 void TIMER0_IRQHandler() {
-    if (TIMER0->IF & TIMER_IF_OF) {
-        TIMER0->IFC = TIMER_IFC_OF;
+    if (TIMER_IntGet(TIMER0) & TIMER_IF_OF) {
+        TIMER_IntClear(TIMER0, TIMER_IF_OF);
 
-        GPIO->P[LED_PORT].DOUTTGL = 1 << LED_PIN;
+        GPIO_PinOutToggle(LED_PORT, LED_PIN);
     }
 }

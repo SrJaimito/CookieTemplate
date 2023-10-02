@@ -6,7 +6,9 @@
 #ifndef __COOKIE_APP_CONFIG_H__
 #define __COOKIE_APP_CONFIG_H__
 
-#define LED_PORT 0
+#include "em_gpio.h"
+
+#define LED_PORT gpioPortA
 #define LED_PIN  5
 
 #endif // __COOKIE_APP_CONFIG_H__

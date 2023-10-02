@@ -2,40 +2,43 @@
 
 #include "app_config.h"
 
-#include "em_device.h"
+#include "em_emu.h"
+#include "em_cmu.h"
+#include "em_gpio.h"
+#include "em_timer.h"
 
 /**
  * Called once before main infinite loop.
 */
 void setup() {
     // External high frequency clock config
-    CMU->OSCENCMD = CMU_OSCENCMD_HFXOEN;
-    while (!(CMU->STATUS & CMU_STATUS_HFXORDY));
+    EMU_DCDCInit_TypeDef dcdcInit = EMU_DCDCINIT_DEFAULT;
+    EMU_DCDCInit(&dcdcInit);
 
-    CMU->HFCLKSEL = CMU_HFCLKSEL_HF_HFXO;
-    while (CMU->HFCLKSTATUS != CMU_HFCLKSTATUS_SELECTED_HFXO);
+    CMU_HFXOInit_TypeDef hfxo_init_config = CMU_HFXOINIT_DEFAULT;
+    CMU_HFXOInit(&hfxo_init_config);
 
-    CMU->OSCENCMD = CMU_OSCENCMD_HFRCODIS;
+    CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFXO);
 
     // Toggle LED config
-    CMU->HFBUSCLKEN0 |= CMU_HFBUSCLKEN0_GPIO;
+    CMU_ClockEnable(cmuClock_GPIO, 1);
 
-    if (LED_PIN < 8) {
-        GPIO->P[LED_PORT].MODEL |= _GPIO_P_MODEL_MODE0_PUSHPULL << (4 * LED_PIN);
-    } else {
-        GPIO->P[LED_PORT].MODEH |= _GPIO_P_MODEL_MODE0_PUSHPULL << (4 * (LED_PIN - 8));
-    }
+    GPIO_PinModeSet(LED_PORT, LED_PIN, gpioModePushPull, 0);
 
     // Timer interrupt config
-    CMU->HFPERCLKEN0 |= CMU_HFPERCLKEN0_TIMER0;
+    CMU_ClockEnable(cmuClock_TIMER0, 1);
 
-    TIMER0->CTRL |= TIMER_CTRL_PRESC_DIV512;
-    TIMER0->TOP = 37109;
-    TIMER0->IEN = TIMER_IEN_OF;
+    TIMER_Init_TypeDef timer0_init_config = TIMER_INIT_DEFAULT;
+    timer0_init_config.enable = 0;
+    timer0_init_config.prescale = timerPrescale512;
 
+    TIMER_Init(TIMER0, &timer0_init_config);
+    TIMER_TopSet(TIMER0, 37109);
+
+    TIMER_IntEnable(TIMER0, TIMER_IF_OF);
     NVIC_EnableIRQ(TIMER0_IRQn);
 
-    TIMER0->CMD = TIMER_CMD_START;
+    TIMER_Enable(TIMER0, 1);
 }
 
 /**
