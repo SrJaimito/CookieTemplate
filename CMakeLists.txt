@@ -78,3 +78,13 @@ add_executable(${PROJECT_NAME}.elf
 add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
     COMMAND ${OBJCOPY} -O ihex ${PROJECT_NAME}.elf ${PROJECT_NAME}.hex
 )
+
+set(COMMANDER ${HOME}/opt/commander/commander)
+
+add_custom_target(upload
+    DEPENDS commander-cmd
+)
+
+add_custom_command(OUTPUT commander-cmd
+    COMMAND ${COMMANDER} flash ${PROJECT_NAME}.hex --address 0x0 --device EFR32BG12P132F1024GL125
+)

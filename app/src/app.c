@@ -11,15 +11,6 @@
  * Called once before main infinite loop.
 */
 void setup() {
-    // External high frequency clock config
-    EMU_DCDCInit_TypeDef dcdcInit = EMU_DCDCINIT_DEFAULT;
-    EMU_DCDCInit(&dcdcInit);
-
-    CMU_HFXOInit_TypeDef hfxo_init_config = CMU_HFXOINIT_DEFAULT;
-    CMU_HFXOInit(&hfxo_init_config);
-
-    CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFXO);
-
     // Toggle LED config
     CMU_ClockEnable(cmuClock_GPIO, 1);
 
