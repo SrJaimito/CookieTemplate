@@ -8,6 +8,8 @@
 #include "em_emu.h"
 #include "em_cmu.h"
 
+#include "retarget.h"
+
 int main() {
     // External high frequency clock config
     EMU_DCDCInit_TypeDef dcdcInit = EMU_DCDCINIT_DEFAULT;
@@ -21,6 +23,9 @@ int main() {
     CMU_OscillatorEnable(cmuOsc_HFRCO, 0, 0);
 
     SystemHFXOClockSet(38400000);
+
+    // Retarget stdio functions
+    retarget_init();
 
     // Call application setup
     setup();

@@ -7,6 +7,8 @@
 #include "em_gpio.h"
 #include "em_timer.h"
 
+#include "stdio.h"
+
 /**
  * Called once before main infinite loop.
 */
@@ -21,7 +23,7 @@ void setup() {
 
     TIMER_Init_TypeDef timer0_init_config = TIMER_INIT_DEFAULT;
     timer0_init_config.enable = 0;
-    timer0_init_config.prescale = timerPrescale512;
+    timer0_init_config.prescale = timerPrescale1024;
 
     TIMER_Init(TIMER0, &timer0_init_config);
     TIMER_TopSet(TIMER0, 37109);
@@ -30,6 +32,9 @@ void setup() {
     NVIC_EnableIRQ(TIMER0_IRQn);
 
     TIMER_Enable(TIMER0, 1);
+
+    // Printf test
+    printf("[*] Cookie ready!\n");
 }
 
 /**

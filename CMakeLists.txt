@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.22.1)
 project(CookieTemplate C ASM)
 
 set(PROJECT_INC_DIRS
+    app
     app/inc
 )
 
@@ -22,23 +23,32 @@ set(GECKO_COMMON_INC_DIR ${SDK_DIR}/platform/common/inc)
 
 set(CMSIS_INC_DIR ${SDK_DIR}/platform/CMSIS/Core/Include)
 
-set(DEVICE_DIR ${SDK_DIR}/platform/Device/SiliconLabs/EFR32BG12P)
+set(DEVICE_DIR ${SDK_DIR}/platform/Device/SiliconLabs/EFR32MG12P)
 set(DEVICE_INC_DIR ${DEVICE_DIR}/Include)
 
-set(STARTUP_FILE ${DEVICE_DIR}/Source/GCC/startup_efr32bg12p.S)
-set(SYSTEM_FILE ${DEVICE_DIR}/Source/system_efr32bg12p.c)
-set(LD_FILE ${DEVICE_DIR}/Source/GCC/efr32bg12p.ld)
+set(STARTUP_FILE ${DEVICE_DIR}/Source/GCC/startup_efr32mg12p.S)
+set(SYSTEM_FILE ${DEVICE_DIR}/Source/system_efr32mg12p.c)
+set(LD_FILE ${DEVICE_DIR}/Source/GCC/efr32mg12p.ld)
 
 set(EMLIB_DIR ${SDK_DIR}/platform/emlib)
 set(EMLIB_INC_DIR ${EMLIB_DIR}/inc)
 file(GLOB_RECURSE EMLIB_SRC_FILES ${EMLIB_DIR}/src/*.c)
 
+set(EMDRV_DIR ${SDK_DIR}/platform/emdrv)
+
+set(EMDRV_UARTDRV_INC_DIR ${EMDRV_DIR}/uartdrv/inc)
+file(GLOB_RECURSE EMDRV_UARTDRV_SRC_FILES ${EMDRV_DIR}/uartdrv/src/*.c)
+
 include_directories(
     ${PROJECT_INC_DIRS}
+
     ${GECKO_COMMON_INC_DIR}
     ${CMSIS_INC_DIR}
     ${DEVICE_INC_DIR}
+
     ${EMLIB_INC_DIR}
+
+    # ${EMDRV_UARTDRV_INC_DIR}
 )
 
 set(TOOLCHAIN_DIR ${HOME}/opt/toolchains/gcc-arm-none-eabi-10.3-2021.10/bin)
@@ -51,7 +61,7 @@ set(CMAKE_ASM_SOURCE_FILE_EXTENSIONS S)
 
 set(CMAKE_C_STANDARD 99)
 
-add_compile_definitions(EFR32BG12P EFR32BG12P132F1024GL125)
+add_compile_definitions(EFR32MG12P EFR32MG12P432F1024GL125)
 
 set(CMAKE_C_FLAGS " \
     -mcpu=cortex-m4 \
@@ -64,15 +74,20 @@ set(CMAKE_C_FLAGS " \
 
 set(CMAKE_EXE_LINKER_FLAGS " \
     -T${LD_FILE} \
+    --specs=nano.specs \
     --specs=nosys.specs \
     -Wl,--gc-sections \
 ")
 
 add_executable(${PROJECT_NAME}.elf
     ${PROJECT_FILES}
+
     ${STARTUP_FILE}
     ${SYSTEM_FILE}
+
     ${EMLIB_SRC_FILES}
+
+    # ${EMDRV_UARTDRV_SRC_FILES}
 )
 
 add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
@@ -86,5 +101,5 @@ add_custom_target(upload
 )
 
 add_custom_command(OUTPUT commander-cmd
-    COMMAND ${COMMANDER} flash ${PROJECT_NAME}.hex --address 0x0 --device EFR32BG12P132F1024GL125
+    COMMAND ${COMMANDER} flash ${PROJECT_NAME}.hex --device EFR32MG12P432F1024GL125
 )
