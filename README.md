@@ -135,4 +135,29 @@ Then, including `app.h` in  `interrupt.c` will allow you to access these variabl
 
 ### Building your application
 
-TO-DO
+Building your application should be more or less straightforward, specially if you prepared all the tools in the same way as in the [requirements section](#requirements). In case you chose different paths, remember to update `CMakeLists.txt` accordingly.
+
+Before building anything, you will have to do at least two things in the `CMakeLists.txt` file:
+
+- Specify your project name. By default, it is set to `CookieTemplate`, so look for it and change it to whatever you want, like
+
+```
+    project(BlinkLED)
+```
+- Specify your home directory. This is because the paths to the external tools and libraries are set by default relative to the home directory `~` (assuming you created the same folder structure in the [requirements section](#requirements)). Thus, you will have to look for the `HOME` variable in `CMakeLists.txt` file and update it in a way similar to
+
+```
+    set(HOME /home/[username])
+```
+
+Now you can move into the `build` folder, generate the Makefiles with CMake and compile your application
+
+    cd build
+    cmake ..
+    make
+
+Now you should see that the `build` folder has a `.hex` with the name of the project that you can flash into the device. To do so automatically, run
+
+    make upload
+
+
